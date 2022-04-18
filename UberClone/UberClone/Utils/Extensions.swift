@@ -112,7 +112,6 @@ extension UITextField {
         textField.isSecureTextEntry = isSecureTextEntry
         textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray])
         return textField
-        
     }
 }
 
