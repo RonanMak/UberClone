@@ -92,8 +92,6 @@ class SignUpController: UIViewController {
             if let error = error {
                 print("register failed \(error.localizedDescription)")
             } else {
-                guard let viewController = UIApplication.shared.keyWindow?.rootViewController as? HomeController else { return }
-                viewController.configureUI()
                 
                 self.dismiss(animated: true)
             }

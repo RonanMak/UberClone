@@ -8,9 +8,16 @@
 import UIKit
 import Firebase
 
+protocol AuthenticationDelegate: AnyObject {
+    func authenticationDidComplete()
+    func configureMainControllerUI()
+}
+
 class LoginController: UIViewController {
     
     // MARK: - Properties
+    
+    weak var delegate: AuthenticationDelegate?
     
     private let titleLabel = UILabel().logoLabel()
     
@@ -62,15 +69,8 @@ class LoginController: UIViewController {
         
         AuthService.logUserIn(withEmail: email, password: password) { (result, error) in
             
-            if let error = error {
-                print("login failed \(error.localizedDescription)")
-            }
-            
-            guard let viewController = UIApplication.shared.keyWindow?.rootViewController as? HomeController else { return }
-            viewController.configureUI()
-            
-            self.dismiss(animated: true)
-            
+            self.delegate?.authenticationDidComplete()
+            self.delegate?.configureMainControllerUI()
         }
     }
     

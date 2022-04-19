@@ -33,14 +33,6 @@ struct AuthService {
             Database.database().reference().child("users").child(uid).updateChildValues(values)
         }
     }
-    
-    static func signUserOut(completion: @escaping(Error?) -> Void) {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("Error: signing out")
-        }
-    }
 }
 
 
