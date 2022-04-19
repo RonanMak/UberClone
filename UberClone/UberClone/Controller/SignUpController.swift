@@ -92,7 +92,6 @@ class SignUpController: UIViewController {
             if let error = error {
                 print("register failed \(error.localizedDescription)")
             } else {
-                
                 self.dismiss(animated: true)
             }
         }

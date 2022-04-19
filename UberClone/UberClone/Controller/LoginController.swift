@@ -68,9 +68,12 @@ class LoginController: UIViewController {
         guard let email = emailTextField.text, let password = passwordTextField.text else { return }
         
         AuthService.logUserIn(withEmail: email, password: password) { (result, error) in
-            
-            self.delegate?.authenticationDidComplete()
-            self.delegate?.configureMainControllerUI()
+            if let error = error {
+                print("Error")
+            } else {
+                self.delegate?.authenticationDidComplete()
+                self.delegate?.configureMainControllerUI()
+            }
         }
     }
     
