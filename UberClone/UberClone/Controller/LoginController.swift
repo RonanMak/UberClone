@@ -12,42 +12,30 @@ class LoginController: UIViewController {
     
     // MARK: - Properties
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "UBER"
-        label.font = UIFont(name: "Avenir-Light", size: 36)
-        label.textColor = UIColor(white: 1, alpha: 0.8)
-        return label
-    }()
+    private let titleLabel = UILabel().logoLabel()
     
     private let emailTextField: UITextField = {
-        return UITextField().textField(withPlaceholder: "Email",
-                                       isSecureTextEntry: false)
+        return UITextField().textField(withPlaceholder: "Email", isSecureTextEntry: false)
     }()
     
     private let passwordTextField: UITextField = {
-        return UITextField().textField(withPlaceholder: "Password",
-                                       isSecureTextEntry: true)
+        return UITextField().textField(withPlaceholder: "Password", isSecureTextEntry: true)
     }()
     
     private lazy var emailContainerView: UIView = {
-        let view = UIView().inputContainerView(image: UIImage(named: "ic_mail_outline_white_2x") ?? UIImage(),
-                                               textField: emailTextField)
+        let view = UIView().inputContainerView(image: UIImage(named: "ic_mail_outline_white_2x") ?? UIImage(), textField: emailTextField)
         view.heightAnchor.constraint(equalToConstant: 50).isActive = true
         return view
     }()
     
     private lazy var passwordContainerView: UIView = {
-        let view2 = UIView().inputContainerView(image: UIImage(named: "ic_lock_outline_white_2x") ?? UIImage(),
-                                                textField: passwordTextField)
+        let view2 = UIView().inputContainerView(image: UIImage(named: "ic_lock_outline_white_2x") ?? UIImage(), textField: passwordTextField)
         view2.heightAnchor.constraint(equalToConstant: 50).isActive = true
         return view2
     }()
     
-    private let loginButton: AuthButton = {
-        let button = AuthButton(type: .system)
-        button.setTitle("Log In", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+    private let loginButton: UIButton = {
+        let button = UIButton().authButton(withText: "Log In")
         button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         return button
     }()
@@ -58,23 +46,31 @@ class LoginController: UIViewController {
         return button
     }()
     
+    
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
     }
     
+    
     // MARK: - Actions
     
     @objc func handleLogin() {
-        guard let email = emailTextField.text else { return }
-        guard let password = passwordTextField.text else { return }
-        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+        
+        AuthService.logUserIn(withEmail: email, password: password) { (result, error) in
+            
             if let error = error {
-                print("\(error.localizedDescription)")
-                return
+                print("login failed \(error.localizedDescription)")
             }
-            print("Successfully logged user in")
+            
+            guard let viewController = UIApplication.shared.keyWindow?.rootViewController as? HomeController else { return }
+            viewController.configureUI()
+            
+            self.dismiss(animated: true)
+            
         }
     }
     
@@ -114,8 +110,4 @@ class LoginController: UIViewController {
         navigationController?.navigationBar.isHidden = true
         navigationController?.navigationBar.barStyle = .black
     }
-    
-//    override var preferredStatusBarStyle: UIStatusBarStyle {
-//        return .lightContent
-//    }
 }

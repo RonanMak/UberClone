@@ -22,31 +22,42 @@ extension UIColor {
 extension UIView {
     
     func inputContainerView(image: UIImage, textField: UITextField? = nil, segmentedControl: UISegmentedControl? = nil) -> UIView {
+        
         let view = UIView()
         
         let imageView = UIImageView()
         imageView.image = image
         imageView.alpha = 0.87
+        
         view.addSubview(imageView)
         
         if let textField = textField {
             imageView.centerY(inView: view)
-            imageView.anchor(left: view.leftAnchor, paddingLeft: 8, width: 24, height: 24)
+            imageView.anchor(left: view.leftAnchor, paddingLeft: 8,
+                             width: 24, height: 24)
+            
             view.addSubview(textField)
             textField.centerY(inView: imageView)
             textField.anchor(bottom: view.bottomAnchor, left: imageView.rightAnchor,
-                                  right: view.rightAnchor, paddingBottom: 8, paddingLeft: 8)
+                             right: view.rightAnchor, paddingBottom: 8,
+                             paddingLeft: 8)
         }
         
         if let segmentedControl = segmentedControl {
-            imageView.anchor(top: view.topAnchor, left: view.leftAnchor, paddingTop: -8, paddingLeft: 8, width: 24, height: 24)
+            imageView.anchor(top: view.topAnchor, left: view.leftAnchor,
+                             paddingTop: -8, paddingLeft: 8,
+                             width: 24, height: 24)
+            
             view.addSubview(segmentedControl)
-            segmentedControl.anchor(left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 8, paddingRight: 8)
+            segmentedControl.anchor(left: view.leftAnchor, right: view.rightAnchor,
+                                    paddingLeft: 8, paddingRight: 8)
+            
             segmentedControl.centerY(inView: view, constant: 0)
         }
         
         let separatorView = UIView()
         separatorView.backgroundColor = .lightGray
+        
         view.addSubview(separatorView)
         separatorView.anchor(bottom: view.bottomAnchor, left: view.leftAnchor,
                              right: view.rightAnchor, paddingLeft: 8, paddingRight: 8, height: 0.75)
@@ -111,7 +122,18 @@ extension UITextField {
         textField.keyboardAppearance = .dark
         textField.isSecureTextEntry = isSecureTextEntry
         textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray])
+        
         return textField
+    }
+}
+
+extension UILabel {
+    func logoLabel() -> UILabel {
+        let label = UILabel()
+        label.text = "UBER"
+        label.font = UIFont(name: "Avenir-Light", size: 36)
+        label.textColor = UIColor(white: 1, alpha: 0.8)
+        return label
     }
 }
 
@@ -125,6 +147,36 @@ extension UIButton {
         attributedTitle.append(NSAttributedString(string: text, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 16), NSAttributedString.Key.foregroundColor: UIColor.mainBlueTint]))
         
         button.setAttributedTitle(attributedTitle, for: .normal)
+        
+        return button
+    }
+    
+    func authButton(withText text: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitleColor(UIColor(white: 1, alpha: 0.5), for: .normal)
+        button.backgroundColor = .mainBlueTint
+        button.layer.cornerRadius = 5
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.setTitle(text, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        
         return button
     }
 }
+
+//class AuthButton: UIButton {
+//
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//
+//        setTitleColor(UIColor(white: 1, alpha: 0.5), for: .normal)
+//        backgroundColor = .mainBlueTint
+//        layer.cornerRadius = 5
+//        heightAnchor.constraint(equalToConstant: 50).isActive = true
+//        titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+//    }
+//
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//}

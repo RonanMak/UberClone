@@ -12,13 +12,7 @@ class SignUpController: UIViewController {
     
     // MARK: - Properties
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "UBER"
-        label.font = UIFont(name: "Avenir-Light", size: 36)
-        label.textColor = UIColor(white: 1, alpha: 0.8)
-        return label
-    }()
+    private let titleLabel = UILabel().logoLabel()
     
     private let emailTextField: UITextField = {
         return UITextField().textField(withPlaceholder: "Email", isSecureTextEntry: false)
@@ -51,11 +45,10 @@ class SignUpController: UIViewController {
     }()
     
     private let accountTypeSegmentedControl: UISegmentedControl = {
-       let segmentedControl = UISegmentedControl(items: ["Rider", "Driver"])
+        let segmentedControl = UISegmentedControl(items: ["Rider", "Driver"])
         segmentedControl.backgroundColor = .backgroundColor
         segmentedControl.tintColor = UIColor(white: 1, alpha: 0.87)
         segmentedControl.selectedSegmentIndex = 0
-//        segmentedControl.heightAnchor.constraint(equalToConstant: 20).isActive = true
         return segmentedControl
     }()
     
@@ -65,10 +58,8 @@ class SignUpController: UIViewController {
         return view
     }()
     
-    private let signUpButton: AuthButton = {
-        let button = AuthButton(type: .system)
-        button.setTitle("Sign Up", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+    private let signUpButton: UIButton = {
+        let button = UIButton().authButton(withText: "Sign up")
         button.addTarget(self, action: #selector(handleSignup), for: .touchUpInside)
         return button
     }()
@@ -95,24 +86,18 @@ class SignUpController: UIViewController {
         guard let fullname = fullNameTextField.text else { return }
         let accountTypeIndex = accountTypeSegmentedControl.selectedSegmentIndex
         
-        print("\(email) \(password)")
-        Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
+        let credentials = AuthCredentials(email: email, password: password, fullname: fullname, accountType: accountTypeIndex)
+        
+        AuthService.registerUser(withCredentials: credentials) { error in
             if let error = error {
-                print("\(error)")
-                return
+                print("register failed \(error.localizedDescription)")
+            } else {
+//                guard let viewController = UIApplication.shared.keyWindow?.rootViewController as? HomeController else { return }
+//                viewController.configureUI()
+                let controller = HomeController()
+                self.navigationController?.pushViewController(controller, animated: true)
+                self.dismiss(animated: true)
             }
-            
-            guard let uid = result?.user.uid else { return }
-            
-            let values = ["email": email,
-                          "fullname": fullname,
-                          "accountType": accountTypeIndex] as [String : Any]
-            
-            print("\(values)")
-            
-            Database.database().reference().child("users").child(uid).updateChildValues(values, withCompletionBlock: { (error, ref) in
-                print("done")
-            })
         }
     }
     
@@ -142,7 +127,6 @@ class SignUpController: UIViewController {
         stackView.distribution = .fillProportionally
         stackView.spacing = 24
         stackView.anchor(top: titleLabel.bottomAnchor, left: view.leftAnchor, right: view.rightAnchor, paddingLeft: 16, paddingRight: 16)
-        
         
         view.addSubview(alreadyHaveAccountButton)
         alreadyHaveAccountButton.centerX(inView: view)
