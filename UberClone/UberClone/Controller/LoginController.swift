@@ -69,7 +69,7 @@ class LoginController: UIViewController {
         
         AuthService.logUserIn(withEmail: email, password: password) { (result, error) in
             if let error = error {
-                print("Error")
+                print("Error: \(error.localizedDescription)")
             } else {
                 self.delegate?.authenticationDidComplete()
                 self.delegate?.configureMainControllerUI()

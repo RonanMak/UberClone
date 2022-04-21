@@ -14,6 +14,7 @@ class HomeController: UIViewController {
     // MARK: - Properties
     
     private let mapView = MKMapView()
+    private let locationManager = CLLocationManager()
     
     private let signOutButton: UIButton = {
         let button = UIButton().authButton(withText: "Sign Out")
@@ -25,6 +26,7 @@ class HomeController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         checkIfUserIsLoggedIn()
+        enableLocationService()
     }
     
     // MARK: - API
@@ -83,5 +85,35 @@ extension HomeController: AuthenticationDelegate {
     
     func configureMainControllerUI() {
         self.configureUI()
+    }
+}
+
+// MARK: - CLLocationManagerDelegate
+
+extension HomeController: CLLocationManagerDelegate {
+    func enableLocationService() {
+        
+        locationManager.delegate = self
+        
+        switch locationManager.authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted, .denied:
+            break
+        case .authorizedAlways:
+            locationManager.startUpdatingLocation()
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        case .authorizedWhenInUse:
+            locationManager.requestAlwaysAuthorization()
+        @unknown default:
+            break
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        
+        if status == .authorizedWhenInUse {
+            locationManager.requestAlwaysAuthorization()
+        }
     }
 }
