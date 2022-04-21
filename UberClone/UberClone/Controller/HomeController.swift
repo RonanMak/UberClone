@@ -65,14 +65,20 @@ class HomeController: UIViewController {
     // MARK: - Style
     
     func configureUI() {
-
-        view.addSubview(mapView)
-        mapView.frame.size.height = view.frame.size.height / 2
-        mapView.frame.size.width = view.frame.size.width
+        configureMapView()
         
         view.addSubview(signOutButton)
         signOutButton.centerX(inView: view)
         signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
+    }
+    
+    func configureMapView() {
+        view.addSubview(mapView)
+        mapView.frame.size.height = view.frame.size.height / 2
+        mapView.frame.size.width = view.frame.size.width
+        
+        mapView.showsUserLocation = true
+        mapView.userTrackingMode = .follow
     }
 }
 
@@ -88,7 +94,7 @@ extension HomeController: AuthenticationDelegate {
     }
 }
 
-// MARK: - CLLocationManagerDelegate
+// MARK: - CLLocationManagerDelegate (Allow user to change their location usage setting)
 
 extension HomeController: CLLocationManagerDelegate {
     func enableLocationService() {
