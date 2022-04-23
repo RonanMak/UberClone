@@ -16,13 +16,14 @@ class HomeController: UIViewController {
     private let mapView = MKMapView()
     private let locationManager = CLLocationManager()
     
-    private let locationInputActionView = LocationInputActivationView()
+    private let locationInputActivationView = LocationInputActivationView()
+    private let locationInputView = LocationInputView()
     
-//    private let signOutButton: UIButton = {
-//        let button = UIButton().authButton(withText: "Sign Out")
-//        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
-//        return button
-//    }()
+    //    private let signOutButton: UIButton = {
+    //        let button = UIButton().authButton(withText: "Sign Out")
+    //        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
+    //        return button
+    //    }()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -69,20 +70,20 @@ class HomeController: UIViewController {
     func configureUI() {
         configureMapView()
         
-        view.addSubview(locationInputActionView)
-        locationInputActionView.centerX(inView: view)
-        locationInputActionView.setDimensions(height: 50, width: view.frame.width - 64)
-        locationInputActionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 32)
-        locationInputActionView.delegate = self
-        locationInputActionView.alpha = 0
+        view.addSubview(locationInputActivationView)
+        locationInputActivationView.centerX(inView: view)
+        locationInputActivationView.setDimensions(height: 50, width: view.frame.width - 64)
+        locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 32)
+        locationInputActivationView.delegate = self
+        locationInputActivationView.alpha = 0
         
         UIView.animate(withDuration: 2) {
-            self.locationInputActionView.alpha = 1
+            self.locationInputActivationView.alpha = 1
         }
         
-//        view.addSubview(signOutButton)
-//        signOutButton.centerX(inView: view)
-//        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
+        //        view.addSubview(signOutButton)
+        //        signOutButton.centerX(inView: view)
+        //        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
     }
     
     func configureMapView() {
@@ -91,8 +92,21 @@ class HomeController: UIViewController {
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
         
-//        mapView.frame.size.height = view.frame.size.height / 2
-//        mapView.frame.size.width = view.frame.size.width
+        //        mapView.frame.size.height = view.frame.size.height / 2
+        //        mapView.frame.size.width = view.frame.size.width
+    }
+    
+    func configureLocationInputView() {
+        locationInputView.delegate = self
+        view.addSubview(locationInputView)
+        locationInputView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, height: 200)
+        locationInputView.alpha = 0
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            self.locationInputView.alpha = 1
+        }) { _ in
+            print("present table view")
+        }
     }
 }
 
@@ -138,8 +152,27 @@ extension HomeController: CLLocationManagerDelegate {
     }
 }
 
+// MARK: - LocationInputActivationViewDelegate
+
 extension HomeController: LocationInputActivationViewDelegate {
     func presentLocationInputView() {
-        print("handle present location ")
+        locationInputActivationView.alpha = 0
+        configureLocationInputView()
+    }
+}
+
+
+// MARK: - LocationInputViewDelegate
+
+extension HomeController: LocationInputViewDelegate {
+    func dismissLocationInputView() {
+        print("9999999")
+        UIView.animate(withDuration: 0.3, animations: {
+            self.locationInputView.alpha = 0
+        }) { _ in
+            UIView.animate(withDuration: 0.3, animations: {
+                self.locationInputActivationView.alpha = 1
+            })
+        }
     }
 }
