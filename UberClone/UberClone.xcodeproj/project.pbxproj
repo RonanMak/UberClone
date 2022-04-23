@@ -71,6 +71,7 @@
 		7C966D7F280D92A500C25F9E /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7C966D7E280D92A500C25F9E /* FirebaseStorage */; };
 		7C966D81280D92A500C25F9E /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 7C966D80280D92A500C25F9E /* FirebaseStorageCombine-Community */; };
 		7C966D85280DD86500C25F9E /* AuthModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D84280DD86500C25F9E /* AuthModel.swift */; };
+		7C966D872813EDE800C25F9E /* LocationInputActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +111,7 @@
 		7C966D48280D602F00C25F9E /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
 		7C966D4B280D910600C25F9E /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		7C966D84280DD86500C25F9E /* AuthModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModel.swift; sourceTree = "<group>"; };
+		7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputActivationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,6 +255,7 @@
 		7C5220D428049162003E5183 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -470,6 +473,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C966D872813EDE800C25F9E /* LocationInputActivationView.swift in Sources */,
 				7C966D12280C81DA00C25F9E /* SignUpController.swift in Sources */,
 				7C5220A428042E14003E5183 /* AppDelegate.swift in Sources */,
 				7C5220D928049231003E5183 /* LoginController.swift in Sources */,

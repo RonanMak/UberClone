@@ -16,11 +16,13 @@ class HomeController: UIViewController {
     private let mapView = MKMapView()
     private let locationManager = CLLocationManager()
     
-    private let signOutButton: UIButton = {
-        let button = UIButton().authButton(withText: "Sign Out")
-        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
-        return button
-    }()
+    private let locationInputActionView = LocationInputActivationView()
+    
+//    private let signOutButton: UIButton = {
+//        let button = UIButton().authButton(withText: "Sign Out")
+//        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
+//        return button
+//    }()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -67,18 +69,30 @@ class HomeController: UIViewController {
     func configureUI() {
         configureMapView()
         
-        view.addSubview(signOutButton)
-        signOutButton.centerX(inView: view)
-        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
+        view.addSubview(locationInputActionView)
+        locationInputActionView.centerX(inView: view)
+        locationInputActionView.setDimensions(height: 50, width: view.frame.width - 64)
+        locationInputActionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 32)
+        locationInputActionView.delegate = self
+        locationInputActionView.alpha = 0
+        
+        UIView.animate(withDuration: 2) {
+            self.locationInputActionView.alpha = 1
+        }
+        
+//        view.addSubview(signOutButton)
+//        signOutButton.centerX(inView: view)
+//        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
     }
     
     func configureMapView() {
         view.addSubview(mapView)
-        mapView.frame.size.height = view.frame.size.height / 2
-        mapView.frame.size.width = view.frame.size.width
-        
+        mapView.frame = view.frame
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
+        
+//        mapView.frame.size.height = view.frame.size.height / 2
+//        mapView.frame.size.width = view.frame.size.width
     }
 }
 
@@ -121,5 +135,11 @@ extension HomeController: CLLocationManagerDelegate {
         if status == .authorizedWhenInUse {
             locationManager.requestAlwaysAuthorization()
         }
+    }
+}
+
+extension HomeController: LocationInputActivationViewDelegate {
+    func presentLocationInputView() {
+        print("handle present location ")
     }
 }
