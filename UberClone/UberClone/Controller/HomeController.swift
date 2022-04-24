@@ -9,6 +9,8 @@ import UIKit
 import Firebase
 import MapKit
 
+private let reuseIdentifier = "LocationCell"
+
 class HomeController: UIViewController {
     
     // MARK: - Properties
@@ -18,7 +20,9 @@ class HomeController: UIViewController {
     
     private let locationInputActivationView = LocationInputActivationView()
     private let locationInputView = LocationInputView()
+    private let tableView = UITableView()
     
+    private final let locationInputViewHeight: CGFloat = 200
     //    private let signOutButton: UIButton = {
     //        let button = UIButton().authButton(withText: "Sign Out")
     //        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
@@ -84,6 +88,7 @@ class HomeController: UIViewController {
         //        view.addSubview(signOutButton)
         //        signOutButton.centerX(inView: view)
         //        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
+        configureTableView()
     }
     
     func configureMapView() {
@@ -99,14 +104,30 @@ class HomeController: UIViewController {
     func configureLocationInputView() {
         locationInputView.delegate = self
         view.addSubview(locationInputView)
-        locationInputView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, height: 200)
+        locationInputView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, height: locationInputViewHeight)
         locationInputView.alpha = 0
         
         UIView.animate(withDuration: 0.5, animations: {
             self.locationInputView.alpha = 1
         }) { _ in
-            print("present table view")
+            UIView.animate(withDuration: 0.3) {
+                self.tableView.frame.origin.y = self.locationInputViewHeight
+            }
         }
+    }
+    
+    func configureTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        tableView.register(LocationCell.self, forCellReuseIdentifier: reuseIdentifier)
+        tableView.rowHeight = 60
+        
+        let height = view.frame.height - locationInputViewHeight
+        tableView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: height)
+        tableView.backgroundColor = .red
+        
+        view.addSubview(tableView)
     }
 }
 
@@ -166,13 +187,29 @@ extension HomeController: LocationInputActivationViewDelegate {
 
 extension HomeController: LocationInputViewDelegate {
     func dismissLocationInputView() {
-        print("9999999")
         UIView.animate(withDuration: 0.3, animations: {
             self.locationInputView.alpha = 0
+            self.tableView.frame.origin.y = self.view.frame.height
         }) { _ in
+            self.locationInputView.removeFromSuperview()
             UIView.animate(withDuration: 0.3, animations: {
                 self.locationInputActivationView.alpha = 1
             })
         }
     }
 }
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
+
+extension HomeController: UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 5
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! LocationCell
+        return cell
+    }
+}
+
+

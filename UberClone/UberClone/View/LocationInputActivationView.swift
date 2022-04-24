@@ -25,7 +25,7 @@ class LocationInputActivationView: UIView {
     
     private let placeHolderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Where to?"
+        label.text = "Where to ?"
         label.font = UIFont.systemFont(ofSize: 18)
         label.textColor = .darkGray
         return label
@@ -62,6 +62,5 @@ class LocationInputActivationView: UIView {
     
     @objc func handleShowLocationInputView() {
         delegate?.presentLocationInputView()
-        print("123")
     }
 }
