@@ -17,7 +17,7 @@ class LocationInputView: UIView {
     
     weak var delegate: LocationInputViewDelegate?
     
-    private let backButton: UIButton = {
+    lazy var backButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "baseline_arrow_back_black_36dp"), for: .normal)
         button.addTarget(self, action: #selector(handleBackTapped), for: .touchUpInside)
