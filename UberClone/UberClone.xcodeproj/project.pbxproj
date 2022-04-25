@@ -74,6 +74,7 @@
 		7C966D872813EDE800C25F9E /* LocationInputActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */; };
 		7C966D8928141B5E00C25F9E /* LocationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8828141B5E00C25F9E /* LocationInputView.swift */; };
 		7C966D8B2815524100C25F9E /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8A2815524100C25F9E /* LocationCell.swift */; };
+		7C966D8D2815B90300C25F9E /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8C2815B90300C25F9E /* Service.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,7 @@
 		7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputActivationView.swift; sourceTree = "<group>"; };
 		7C966D8828141B5E00C25F9E /* LocationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputView.swift; sourceTree = "<group>"; };
 		7C966D8A2815524100C25F9E /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
+		7C966D8C2815B90300C25F9E /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -270,6 +272,7 @@
 			isa = PBXGroup;
 			children = (
 				7C966D4B280D910600C25F9E /* AuthService.swift */,
+				7C966D8C2815B90300C25F9E /* Service.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -484,6 +487,7 @@
 				7C5220A428042E14003E5183 /* AppDelegate.swift in Sources */,
 				7C5220D928049231003E5183 /* LoginController.swift in Sources */,
 				7C966D8928141B5E00C25F9E /* LocationInputView.swift in Sources */,
+				7C966D8D2815B90300C25F9E /* Service.swift in Sources */,
 				7C5220A628042E14003E5183 /* SceneDelegate.swift in Sources */,
 				7C966D8B2815524100C25F9E /* LocationCell.swift in Sources */,
 				7C966D49280D602F00C25F9E /* HomeController.swift in Sources */,
