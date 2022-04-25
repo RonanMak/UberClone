@@ -7,6 +7,7 @@
 
 import UIKit
 import Firebase
+import GeoFire
 
 typealias FirestoreAuthCompletion = (AuthDataResult?, Error?) -> Void
 
@@ -26,9 +27,22 @@ struct AuthService {
             
             guard let uid = result?.user.uid else { return }
             
+            let location = LocationHandler.shared.locationManager.location
+            
             let values = ["email": credentials.email,
                           "fullname": credentials.fullname,
                           "accountType": credentials.accountType] as [String : Any]
+            
+            if credentials.accountType == 1 {
+                
+                let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+                
+                guard let location = location else { return }
+                
+                geofire.setLocation(location, forKey: uid, withCompletionBlock: { (error) in
+                    Database.database().reference().child("users").child(uid).updateChildValues(values)
+                })
+            }
             
             Database.database().reference().child("users").child(uid).updateChildValues(values)
         }

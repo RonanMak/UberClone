@@ -16,7 +16,7 @@ class HomeController: UIViewController {
     // MARK: - Properties
     
     private let mapView = MKMapView()
-    private let locationManager = CLLocationManager()
+    private let locationManager = LocationHandler.shared.locationManager
     
     private let locationInputActivationView = LocationInputActivationView()
     private let locationInputView = LocationInputView()
@@ -27,11 +27,12 @@ class HomeController: UIViewController {
     }
     
     private final let locationInputViewHeight: CGFloat = 200
-    //    private let signOutButton: UIButton = {
-    //        let button = UIButton().authButton(withText: "Sign Out")
-    //        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
-    //        return button
-    //    }()
+    
+        private let signOutButton: UIButton = {
+            let button = UIButton().authButton(withText: "Sign Out")
+            button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
+            return button
+        }()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -96,9 +97,9 @@ class HomeController: UIViewController {
             self.locationInputActivationView.alpha = 1
         }
         
-        //        view.addSubview(signOutButton)
-        //        signOutButton.centerX(inView: view)
-        //        signOutButton.anchor(top: mapView.bottomAnchor, paddingTop: 100)
+                view.addSubview(signOutButton)
+                signOutButton.centerX(inView: view)
+                signOutButton.anchor(top: locationInputActivationView.bottomAnchor, paddingTop: 100)
         configureTableView()
     }
     
@@ -157,30 +158,21 @@ extension HomeController: AuthenticationDelegate {
 
 // MARK: - CLLocationManagerDelegate (Allow user to change their location usage setting)
 
-extension HomeController: CLLocationManagerDelegate {
+extension HomeController {
     func enableLocationService() {
         
-        locationManager.delegate = self
-        
-        switch locationManager.authorizationStatus {
+        switch locationManager?.authorizationStatus {
         case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
+            locationManager?.requestWhenInUseAuthorization()
         case .restricted, .denied:
             break
         case .authorizedAlways:
-            locationManager.startUpdatingLocation()
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager?.startUpdatingLocation()
+            locationManager?.desiredAccuracy = kCLLocationAccuracyBest
         case .authorizedWhenInUse:
-            locationManager.requestAlwaysAuthorization()
+            locationManager?.requestAlwaysAuthorization()
         @unknown default:
             break
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
-        if status == .authorizedWhenInUse {
-            locationManager.requestAlwaysAuthorization()
         }
     }
 }
