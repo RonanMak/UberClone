@@ -22,6 +22,10 @@ class HomeController: UIViewController {
     private let locationInputView = LocationInputView()
     private let tableView = UITableView()
     
+    private var user: User? {
+        didSet { locationInputView.user = user }
+    }
+    
     private final let locationInputViewHeight: CGFloat = 200
     //    private let signOutButton: UIButton = {
     //        let button = UIButton().authButton(withText: "Sign Out")
@@ -40,7 +44,9 @@ class HomeController: UIViewController {
     // MARK: - API
     
     func fetchUserData() {
-        Service.shared.fetchUser()
+        Service.shared.fetchUserData { user in
+            self.user = user
+        }
     }
     
     func checkIfUserIsLoggedIn() {

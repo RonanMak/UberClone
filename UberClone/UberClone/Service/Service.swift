@@ -14,7 +14,7 @@ struct Service {
     
     static let shared = Service()
     
-    func fetchUser() {
+    func fetchUserData(completion: @escaping(User) -> Void) {
         
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
@@ -22,8 +22,9 @@ struct Service {
             
             guard let dictionary = snapshot.value as? [String: Any] else { return }
             
-            guard let fullname = dictionary["fullname"] as? String else { return }
-            print("\(fullname)")
+            let user = User(dictionary: dictionary)
+            
+            completion(user)
         }
     }
 }

@@ -75,6 +75,7 @@
 		7C966D8928141B5E00C25F9E /* LocationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8828141B5E00C25F9E /* LocationInputView.swift */; };
 		7C966D8B2815524100C25F9E /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8A2815524100C25F9E /* LocationCell.swift */; };
 		7C966D8D2815B90300C25F9E /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8C2815B90300C25F9E /* Service.swift */; };
+		7C966D8F2816DCDE00C25F9E /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D8E2816DCDE00C25F9E /* User.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,7 @@
 		7C966D8828141B5E00C25F9E /* LocationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputView.swift; sourceTree = "<group>"; };
 		7C966D8A2815524100C25F9E /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
 		7C966D8C2815B90300C25F9E /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		7C966D8E2816DCDE00C25F9E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +256,7 @@
 			isa = PBXGroup;
 			children = (
 				7C966D84280DD86500C25F9E /* AuthModel.swift */,
+				7C966D8E2816DCDE00C25F9E /* User.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -482,6 +485,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C966D8F2816DCDE00C25F9E /* User.swift in Sources */,
 				7C966D872813EDE800C25F9E /* LocationInputActivationView.swift in Sources */,
 				7C966D12280C81DA00C25F9E /* SignUpController.swift in Sources */,
 				7C5220A428042E14003E5183 /* AppDelegate.swift in Sources */,
