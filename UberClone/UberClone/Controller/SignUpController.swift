@@ -12,6 +12,9 @@ import GeoFire
 class SignUpController: UIViewController {
     
     // MARK: - Properties
+    let location = LocationHandler.shared.locationManager.location
+    
+    weak var delegate: AuthenticationDelegate?
     
     private let titleLabel = UILabel().logoLabel()
     
@@ -77,6 +80,8 @@ class SignUpController: UIViewController {
         super.viewDidLoad()
         
         configureUI()
+        let tapGesture = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tapGesture)
     }
     
     // MARK: - Actions
@@ -89,13 +94,35 @@ class SignUpController: UIViewController {
         
         let credentials = AuthCredentials(email: email, password: password, fullname: fullname, accountType: accountTypeIndex)
         
-        AuthService.registerUser(withCredentials: credentials) { error in
+        Auth.auth().createUser(withEmail: credentials.email, password: credentials.password) { (result, error) in
             if let error = error {
-                print("register failed \(error.localizedDescription)")
-            } else {
-                self.dismiss(animated: true)
+                print("\(error)")
+                return
             }
+            
+            guard let uid = result?.user.uid else { return }
+            
+            let values = ["email": credentials.email,
+                          "fullname": credentials.fullname,
+                          "accountType": credentials.accountType] as [String : Any]
+            
+            if accountTypeIndex == 1 {
+                let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+                guard let location = self.location else { return }
+                
+                geofire.setLocation(location, forKey: uid, withCompletionBlock: { (error) in
+                    self.uploadUserDataAndShowHomeController(uid: uid, values: values)
+                })
+            }
+            self.uploadUserDataAndShowHomeController(uid: uid, values: values)
         }
+    }
+    
+    func uploadUserDataAndShowHomeController(uid: String, values: [String: Any]) {
+        REF_USER.child(uid).updateChildValues(values, withCompletionBlock: { (error, ref ) in
+            self.dismiss(animated: true)
+            self.delegate?.configureUIAfterRegistration()
+        })
     }
     
     @objc func handleShowLogin() {

@@ -23,16 +23,18 @@ class HomeController: UIViewController {
     private let tableView = UITableView()
     
     private var user: User? {
-        didSet { locationInputView.user = user }
+        didSet { locationInputView.user = self.user }
+//        didSet { locationInputView.titleLabel.text = user?.fullname }
     }
     
     private final let locationInputViewHeight: CGFloat = 200
     
-        private let signOutButton: UIButton = {
-            let button = UIButton().authButton(withText: "Sign Out")
-            button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
-            return button
-        }()
+    // sign out
+    private let signOutButton: UIButton = {
+        let button = UIButton().authButton(withText: "Sign Out")
+        button.addTarget(self, action: #selector(handleSignOut), for: .touchUpInside)
+        return button
+    }()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -68,6 +70,7 @@ class HomeController: UIViewController {
         }
     }
     
+    // sign out
     @objc func handleSignOut() {
         do {
             try Auth.auth().signOut()
@@ -97,9 +100,11 @@ class HomeController: UIViewController {
             self.locationInputActivationView.alpha = 1
         }
         
-                view.addSubview(signOutButton)
-                signOutButton.centerX(inView: view)
-                signOutButton.anchor(top: locationInputActivationView.bottomAnchor, paddingTop: 100)
+        // sign out
+        view.addSubview(signOutButton)
+        signOutButton.centerX(inView: view)
+        signOutButton.anchor(top: locationInputActivationView.bottomAnchor, paddingTop: 100)
+        
         configureTableView()
     }
     
@@ -108,12 +113,10 @@ class HomeController: UIViewController {
         mapView.frame = view.frame
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
-        
-        //        mapView.frame.size.height = view.frame.size.height / 2
-        //        mapView.frame.size.width = view.frame.size.width
     }
     
     func configureLocationInputView() {
+        
         locationInputView.delegate = self
         view.addSubview(locationInputView)
         locationInputView.anchor(top: view.topAnchor, left: view.leftAnchor, right: view.rightAnchor, height: locationInputViewHeight)
@@ -147,11 +150,7 @@ class HomeController: UIViewController {
 // MARK: - AuthenticationDelegate
 
 extension HomeController: AuthenticationDelegate {
-    func authenticationDidComplete() {
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    func configureMainControllerUI() {
+    func configureUIAfterRegistration() {
         self.configureUI()
     }
 }
