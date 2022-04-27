@@ -152,6 +152,7 @@ class HomeController: UIViewController {
 extension HomeController: AuthenticationDelegate {
     func configureUIAfterRegistration() {
         self.configureUI()
+        self.fetchUserData()
     }
 }
 
@@ -170,6 +171,8 @@ extension HomeController {
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
         case .authorizedWhenInUse:
             locationManager?.requestAlwaysAuthorization()
+        case .none:
+            break
         @unknown default:
             break
         }
