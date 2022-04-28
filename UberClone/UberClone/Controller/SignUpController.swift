@@ -120,8 +120,8 @@ class SignUpController: UIViewController {
     
     func uploadUserDataAndShowHomeController(uid: String, values: [String: Any]) {
         REF_USER.child(uid).updateChildValues(values, withCompletionBlock: { (error, ref ) in
-            self.dismiss(animated: true)
             self.delegate?.configureUIAfterRegistration()
+            self.dismiss(animated: true)
         })
     }
     

@@ -24,7 +24,6 @@ class HomeController: UIViewController {
     
     private var user: User? {
         didSet { locationInputView.user = self.user }
-//        didSet { locationInputView.titleLabel.text = user?.fullname }
     }
     
     private final let locationInputViewHeight: CGFloat = 200
@@ -42,13 +41,22 @@ class HomeController: UIViewController {
         checkIfUserIsLoggedIn()
         enableLocationService()
         fetchUserData()
+        fetchDriver()
     }
     
     // MARK: - API
     
     func fetchUserData() {
-        Service.shared.fetchUserData { user in
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        Service.shared.fetchUserData(uid: currentUid) { user in
             self.user = user
+        }
+    }
+    
+    func fetchDriver() {
+        guard let location = locationManager?.location else { return }
+        Service.shared.fetchDrivers(location: location) { user in
+            print("debug: \(user.location)")
         }
     }
     
