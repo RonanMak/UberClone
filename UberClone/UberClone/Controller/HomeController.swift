@@ -289,7 +289,7 @@ extension HomeController: LocationInputViewDelegate {
 extension HomeController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return section == 0 ? "saved address" : "Search Result"
+        return section == 0 ? "Previous" : "Search Result"
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -297,11 +297,15 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 2 : searchResults.count
+        return section == 0 ? 3 : searchResults.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! LocationCell
+        
+        if indexPath.section == 1 {
+            cell.placemark = searchResults[indexPath.row]
+        }
         return cell
     }
 }
