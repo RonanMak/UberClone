@@ -10,6 +10,7 @@ import Firebase
 import MapKit
 
 private let reuseIdentifier = "LocationCell"
+private let annotationIdentifier = "DriverAnnotation"
 
 class HomeController: UIViewController {
     
@@ -40,8 +41,6 @@ class HomeController: UIViewController {
         super.viewDidLoad()
         checkIfUserIsLoggedIn()
         enableLocationService()
-        fetchUserData()
-        fetchDriver()
     }
     
     // MARK: - API
@@ -58,8 +57,24 @@ class HomeController: UIViewController {
         Service.shared.fetchDrivers(location: location) { driver in
             guard let coordinate = driver.location?.coordinate else { return }
             let annotation = DriverAnnotation(uid: driver.uid, coordinate: coordinate)
+            print("debug: driver coordinate is \(coordinate)")
             
-            self.mapView.addAnnotation(annotation)
+            
+            var driverIsVisible: Bool {
+                return self.mapView.annotations.contains(where: { annotation -> Bool in
+                    guard let driverAnno = annotation as? DriverAnnotation else { return false }
+                    if driverAnno.uid == driver.uid {
+                        print("debug: handle update driver position")
+                        driverAnno.updateAnnotationPosition(withCoordinate: coordinate)
+                        return true
+                }
+                return false
+            })
+        }
+            
+            if !driverIsVisible {
+                self.mapView.addAnnotation(annotation)
+            }
         }
     }
     
@@ -67,7 +82,7 @@ class HomeController: UIViewController {
         if Auth.auth().currentUser?.uid == nil {
             presentLogInController()
         } else {
-            configureUI()
+            self.configure()
         }
     }
     
@@ -97,13 +112,19 @@ class HomeController: UIViewController {
     
     // MARK: - Style
     
+    func configure() {
+        configureUI()
+        fetchUserData()
+        fetchDriver()
+    }
+    
     func configureUI() {
         configureMapView()
         
         view.addSubview(locationInputActivationView)
         locationInputActivationView.centerX(inView: view)
-        locationInputActivationView.setDimensions(height: 50, width: view.frame.width - 64)
-        locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 32)
+        locationInputActivationView.setDimensions(height: 80, width: view.frame.width)
+        locationInputActivationView.anchor(bottom: view.bottomAnchor)
         locationInputActivationView.delegate = self
         locationInputActivationView.alpha = 0
         
@@ -114,7 +135,7 @@ class HomeController: UIViewController {
         // sign out
         view.addSubview(signOutButton)
         signOutButton.centerX(inView: view)
-        signOutButton.anchor(top: locationInputActivationView.bottomAnchor, paddingTop: 100)
+        signOutButton.anchor(top: locationInputActivationView.topAnchor)
         
         configureTableView()
     }
@@ -124,6 +145,8 @@ class HomeController: UIViewController {
         mapView.frame = view.frame
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
+        
+        mapView.delegate = self
     }
     
     func configureLocationInputView() {
@@ -162,8 +185,7 @@ class HomeController: UIViewController {
 
 extension HomeController: AuthenticationDelegate {
     func configureUIAfterRegistration() {
-        self.configureUI()
-        self.fetchUserData()
+        self.configure()
     }
 }
 
@@ -187,6 +209,19 @@ extension HomeController {
         @unknown default:
             break
         }
+    }
+}
+
+// MARK: - MKMapViewDelegate
+
+extension HomeController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if let annotation = annotation as? DriverAnnotation {
+            let view = MKAnnotationView(annotation: annotation, reuseIdentifier: annotationIdentifier)
+            view.image = UIImage(named: "chevron-sign-to-right")
+            return view
+        }
+        return nil
     }
 }
 
