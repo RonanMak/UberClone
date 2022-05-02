@@ -21,6 +21,7 @@
 		7C8A4B892816E3770099E1F0 /* GeoFireUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 7C8A4B882816E3770099E1F0 /* GeoFireUtils */; };
 		7C8A4B8B2816EEA40099E1F0 /* LocationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8A4B8A2816EEA40099E1F0 /* LocationHandler.swift */; };
 		7C8A4B8F281AE1980099E1F0 /* DriverAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8A4B8E281AE1980099E1F0 /* DriverAnnotation.swift */; };
+		7C8A4B91282043EF0099E1F0 /* RideActionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C8A4B90282043EF0099E1F0 /* RideActionView.swift */; };
 		7C966D12280C81DA00C25F9E /* SignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C966D11280C81DA00C25F9E /* SignUpController.swift */; };
 		7C966D19280D00DC00C25F9E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 7C966D18280D00DC00C25F9E /* FirebaseAppCheck */; };
 		7C966D1B280D00DC00C25F9E /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 7C966D1A280D00DC00C25F9E /* FirebaseAppDistribution-Beta */; };
@@ -115,6 +116,7 @@
 		7C5220DA28049F59003E5183 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		7C8A4B8A2816EEA40099E1F0 /* LocationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHandler.swift; sourceTree = "<group>"; };
 		7C8A4B8E281AE1980099E1F0 /* DriverAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverAnnotation.swift; sourceTree = "<group>"; };
+		7C8A4B90282043EF0099E1F0 /* RideActionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideActionView.swift; sourceTree = "<group>"; };
 		7C966D11280C81DA00C25F9E /* SignUpController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpController.swift; sourceTree = "<group>"; };
 		7C966D46280D0F4600C25F9E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		7C966D48280D602F00C25F9E /* HomeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				7C966D862813EDE800C25F9E /* LocationInputActivationView.swift */,
 				7C966D8828141B5E00C25F9E /* LocationInputView.swift */,
 				7C966D8A2815524100C25F9E /* LocationCell.swift */,
+				7C8A4B90282043EF0099E1F0 /* RideActionView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -505,6 +508,7 @@
 				7C966D8D2815B90300C25F9E /* Service.swift in Sources */,
 				7C5220A628042E14003E5183 /* SceneDelegate.swift in Sources */,
 				7C966D8B2815524100C25F9E /* LocationCell.swift in Sources */,
+				7C8A4B91282043EF0099E1F0 /* RideActionView.swift in Sources */,
 				7C966D49280D602F00C25F9E /* HomeController.swift in Sources */,
 				7C5220DB28049F59003E5183 /* Extensions.swift in Sources */,
 				7C966D85280DD86500C25F9E /* AuthModel.swift in Sources */,

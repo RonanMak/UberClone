@@ -30,10 +30,12 @@ class HomeController: UIViewController {
     
     private let locationInputActivationView = LocationInputActivationView()
     private let locationInputView = LocationInputView()
+    private let rideActionView = RideActionView()
     private let tableView = UITableView()
     
     private var searchResults = [MKPlacemark]()
     private final let locationInputViewHeight: CGFloat = 200
+    private final let rideActionViewHeight: CGFloat = 300
     
     private var user: User? {
         didSet { locationInputView.user = self.user }
@@ -168,14 +170,16 @@ class HomeController: UIViewController {
     
     func configureUI() {
         configureMapView()
+        configureRideActionView()
         
         view.addSubview(actionButton)
         actionButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 16, paddingLeft: 16, width: 30, height: 30)
         
         view.addSubview(locationInputActivationView)
         locationInputActivationView.centerX(inView: view)
-        locationInputActivationView.setDimensions(height: 80, width: view.frame.width)
-        locationInputActivationView.anchor(bottom: view.bottomAnchor)
+        locationInputActivationView.setDimensions(height: 60, width: view.frame.width - 35)
+//        locationInputActivationView.anchor(bottom: view.bottomAnchor)
+        locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 80)
         locationInputActivationView.delegate = self
         locationInputActivationView.alpha = 0
         
@@ -184,9 +188,9 @@ class HomeController: UIViewController {
         }
         
         // sign out
-        view.addSubview(signOutButton)
-        signOutButton.centerX(inView: view)
-        signOutButton.anchor(top: locationInputActivationView.topAnchor)
+//        view.addSubview(signOutButton)
+//        signOutButton.centerX(inView: view)
+//        signOutButton.anchor(top: locationInputActivationView.topAnchor)
         
         configureTableView()
     }
@@ -214,6 +218,13 @@ class HomeController: UIViewController {
                 self.tableView.frame.origin.y = self.locationInputViewHeight
             }
         }
+    }
+    
+    func configureRideActionView() {
+        view.addSubview(rideActionView)
+//        rideActionView.delegate = self
+        rideActionView.frame = CGRect(x: 0, y: view.frame.height - 300,
+                                      width: view.frame.width, height: rideActionViewHeight)
     }
     
     func configureTableView() {
@@ -341,7 +352,7 @@ extension HomeController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         
         let lineRenderer = MKPolylineRenderer(overlay: route!.polyline)
-        lineRenderer.strokeColor = .mainBlueTint
+        lineRenderer.strokeColor = .black
         lineRenderer.lineWidth = 3.5
         return lineRenderer
     }
