@@ -73,8 +73,7 @@ class HomeController: UIViewController {
             
             UIView.animate(withDuration: 0.3) {
                 self.locationInputActivationView.alpha = 1
-                self.actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
-                self.actionButtonConfig = .showMenu
+                self.configureActionButton(config: .showMenu)
             }
         }
     }
@@ -152,6 +151,17 @@ class HomeController: UIViewController {
         configureUI()
         fetchUserData()
         fetchDriver()
+    }
+    
+    fileprivate func configureActionButton(config: ActionButtonConfiguration) {
+        switch config {
+        case .showMenu:
+            self.actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            self.actionButtonConfig = .showMenu
+        case .dismissActionView:
+            actionButton.setImage(UIImage(named: "baseline_arrow_back_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            actionButtonConfig = .dismissActionView
+        }
     }
     
     func configureUI() {
@@ -354,9 +364,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedPlacemark = searchResults[indexPath.row]
         
-        actionButton.setImage(UIImage(named: "baseline_arrow_back_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        
-        actionButtonConfig = .dismissActionView
+        configureActionButton(config: .dismissActionView)
         
         self.dismissLocationInputViewHandler { _ in
             let annotation = MKPointAnnotation()
