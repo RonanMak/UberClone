@@ -47,6 +47,7 @@ class HomeController: UIViewController {
     }()
     
     private var actionButtonConfig = ActionButtonConfiguration()
+    private var route: MKRoute?
     
     // sign out
     private let signOutButton: UIButton = {
@@ -67,9 +68,9 @@ class HomeController: UIViewController {
     @objc func actionButtonPressed() {
         switch actionButtonConfig {
         case .showMenu:
-            print("debug: show menu")
+            print("hi")
         case .dismissActionView:
-            print("debug: handle dismiss")
+            self.removeAnnotaionAndOverlays()
             
             UIView.animate(withDuration: 0.3) {
                 self.locationInputActivationView.alpha = 1
@@ -102,10 +103,10 @@ class HomeController: UIViewController {
                         print("debug: handle update driver position")
                         driverAnno.updateAnnotationPosition(withCoordinate: coordinate)
                         return true
-                }
-                return false
-            })
-        }
+                    }
+                    return false
+                })
+            }
             
             if !driverIsVisible {
                 self.mapView.addAnnotation(annotation)
@@ -234,7 +235,7 @@ class HomeController: UIViewController {
             self.locationInputView.alpha = 0
             self.tableView.frame.origin.y = self.view.frame.height
             self.locationInputView.removeFromSuperview()
-
+            
         }, completion: completion)
     }
 }
@@ -259,6 +260,37 @@ private extension HomeController {
             })
             
             completion(results)
+        }
+    }
+    
+    func generatePolyline(toDestination destination: MKMapItem) {
+        let request = MKDirections.Request()
+        request.source = MKMapItem.forCurrentLocation()
+        request.destination = destination
+        request.transportType = .automobile
+        
+        print("debug: 4")
+        let directionRequest = MKDirections(request: request)
+        directionRequest.calculate { response, error  in
+            
+            print("debug: 5")
+            guard let response = response?.routes[0] else { return print("debug: 1")}
+            self.route = response
+            guard let polyline = self.route?.polyline else { return print("debug: 2")}
+            print("debug: 6")
+            self.mapView.addOverlay(polyline)
+        }
+    }
+    
+    func removeAnnotaionAndOverlays() {
+        mapView.annotations.forEach { (annotaion) in
+            if let annotation = annotaion as? MKPointAnnotation {
+                mapView.removeAnnotation(annotation)
+            }
+        }
+        
+        if mapView.overlays.count > 0 {
+            mapView.removeOverlay(mapView.overlays[0])
         }
     }
 }
@@ -304,6 +336,14 @@ extension HomeController: MKMapViewDelegate {
             return view
         }
         return nil
+    }
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        
+        let lineRenderer = MKPolylineRenderer(overlay: route!.polyline)
+        lineRenderer.strokeColor = .mainBlueTint
+        lineRenderer.lineWidth = 3.5
+        return lineRenderer
     }
 }
 
@@ -365,6 +405,10 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
         let selectedPlacemark = searchResults[indexPath.row]
         
         configureActionButton(config: .dismissActionView)
+        
+        print("debug: 3")
+        let destination = MKMapItem(placemark: selectedPlacemark)
+        generatePolyline(toDestination: destination)
         
         self.dismissLocationInputViewHandler { _ in
             let annotation = MKPointAnnotation()
