@@ -12,6 +12,15 @@ import MapKit
 private let reuseIdentifier = "LocationCell"
 private let annotationIdentifier = "DriverAnnotation"
 
+private enum ActionButtonConfiguration {
+    case showMenu
+    case dismissActionView
+    
+    init() {
+        self = .showMenu
+    }
+}
+
 class HomeController: UIViewController {
     
     // MARK: - Properties
@@ -24,12 +33,20 @@ class HomeController: UIViewController {
     private let tableView = UITableView()
     
     private var searchResults = [MKPlacemark]()
+    private final let locationInputViewHeight: CGFloat = 200
     
     private var user: User? {
         didSet { locationInputView.user = self.user }
     }
     
-    private final let locationInputViewHeight: CGFloat = 200
+    private let actionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        button.addTarget(self, action: #selector(actionButtonPressed), for: .touchUpInside)
+        return button
+    }()
+    
+    private var actionButtonConfig = ActionButtonConfiguration()
     
     // sign out
     private let signOutButton: UIButton = {
@@ -43,6 +60,23 @@ class HomeController: UIViewController {
         super.viewDidLoad()
         checkIfUserIsLoggedIn()
         enableLocationService()
+    }
+    
+    // MARK: - Selectors
+    
+    @objc func actionButtonPressed() {
+        switch actionButtonConfig {
+        case .showMenu:
+            print("debug: show menu")
+        case .dismissActionView:
+            print("debug: handle dismiss")
+            
+            UIView.animate(withDuration: 0.3) {
+                self.locationInputActivationView.alpha = 1
+                self.actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+                self.actionButtonConfig = .showMenu
+            }
+        }
     }
     
     // MARK: - API
@@ -123,6 +157,9 @@ class HomeController: UIViewController {
     func configureUI() {
         configureMapView()
         
+        view.addSubview(actionButton)
+        actionButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 16, paddingLeft: 16, width: 30, height: 30)
+        
         view.addSubview(locationInputActivationView)
         locationInputActivationView.centerX(inView: view)
         locationInputActivationView.setDimensions(height: 80, width: view.frame.width)
@@ -180,6 +217,15 @@ class HomeController: UIViewController {
         tableView.backgroundColor = .white
         
         view.addSubview(tableView)
+    }
+    
+    func dismissLocationInputViewHandler(completion: ((Bool) -> Void)? = nil) {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.locationInputView.alpha = 0
+            self.tableView.frame.origin.y = self.view.frame.height
+            self.locationInputView.removeFromSuperview()
+
+        }, completion: completion)
     }
 }
 
@@ -272,12 +318,8 @@ extension HomeController: LocationInputViewDelegate {
     }
     
     func dismissLocationInputView() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.locationInputView.alpha = 0
-            self.tableView.frame.origin.y = self.view.frame.height
-        }) { _ in
-            self.locationInputView.removeFromSuperview()
-            UIView.animate(withDuration: 0.3, animations: {
+        dismissLocationInputViewHandler { _ in
+            UIView.animate(withDuration: 0.5, animations: {
                 self.locationInputActivationView.alpha = 1
             })
         }
@@ -307,6 +349,21 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
             cell.placemark = searchResults[indexPath.row]
         }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedPlacemark = searchResults[indexPath.row]
+        
+        actionButton.setImage(UIImage(named: "baseline_arrow_back_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        
+        actionButtonConfig = .dismissActionView
+        
+        self.dismissLocationInputViewHandler { _ in
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = selectedPlacemark.coordinate
+            self.mapView.addAnnotation(annotation)
+            self.mapView.selectAnnotation(annotation, animated: true)
+        }
     }
 }
 
