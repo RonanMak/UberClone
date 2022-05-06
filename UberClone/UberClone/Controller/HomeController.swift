@@ -26,7 +26,7 @@ class HomeController: UIViewController {
     // MARK: - Properties
     
     private let mapView = MKMapView()
-    private let locationManager = LocationHandler.shared.locationManager
+    let locationManager = LocationHandler.shared.locationManager
     
     private let locationInputActivationView = LocationInputActivationView()
     private let locationInputView = LocationInputView()
@@ -38,7 +38,25 @@ class HomeController: UIViewController {
     private final let rideActionViewHeight: CGFloat = 300
     
     private var user: User? {
-        didSet { locationInputView.user = self.user }
+        didSet {
+            locationInputView.user = self.user
+
+            if user?.accountType == .passenger {
+                fetchDriver()
+                configureLocationInputActivationView()
+            } else {
+                // driver type
+                observeTrips()
+            }
+        }
+    }
+
+    private var trip: Trip? {
+        didSet {
+            guard let trip = trip else { return }
+            let controller = PickupController(trip: trip)
+            self.present(controller, animated: true, completion: nil)
+        }
     }
     
     private let actionButton: UIButton = {
@@ -117,6 +135,12 @@ class HomeController: UIViewController {
             }
         }
     }
+
+    func observeTrips() {
+        Service.shared.observeTrips { trip in
+            self.trip = trip
+        }
+    }
     
     func checkIfUserIsLoggedIn() {
         if Auth.auth().currentUser?.uid == nil {
@@ -155,7 +179,6 @@ class HomeController: UIViewController {
     func configure() {
         configureUI()
         fetchUserData()
-        fetchDriver()
     }
     
     fileprivate func configureActionButton(config: ActionButtonConfiguration) {
@@ -176,32 +199,34 @@ class HomeController: UIViewController {
         view.addSubview(actionButton)
         actionButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, paddingTop: 16, paddingLeft: 16, width: 30, height: 30)
         
+//         sign out
+        view.addSubview(signOutButton)
+        signOutButton.centerX(inView: view)
+        signOutButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor)
+        
+        configureTableView()
+    }
+
+    func configureLocationInputActivationView() {
         view.addSubview(locationInputActivationView)
         locationInputActivationView.centerX(inView: view)
-        locationInputActivationView.setDimensions(height: 60, width: view.frame.width - 35)
+        locationInputActivationView.setDimensions(height: 50, width: view.frame.width - 35)
 //        locationInputActivationView.anchor(bottom: view.bottomAnchor)
         locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 80)
         locationInputActivationView.delegate = self
         locationInputActivationView.alpha = 0
-        
+
         UIView.animate(withDuration: 2) {
             self.locationInputActivationView.alpha = 1
         }
-        
-        // sign out
-//        view.addSubview(signOutButton)
-//        signOutButton.centerX(inView: view)
-//        signOutButton.anchor(top: locationInputActivationView.topAnchor)
-        
-        configureTableView()
     }
     
     func configureMapView() {
         view.addSubview(mapView)
         mapView.frame = view.frame
+        
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
-        
         mapView.delegate = self
     }
     
@@ -223,7 +248,7 @@ class HomeController: UIViewController {
     
     func configureRideActionView() {
         view.addSubview(rideActionView)
-//        rideActionView.delegate = self
+        rideActionView.delegate = self
         rideActionView.frame = CGRect(x: 0, y: view.frame.height,
                                       width: view.frame.width, height: rideActionViewHeight)
     }
@@ -451,4 +476,19 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension HomeController: RideActionViewDelegate {
+    func uploadTrip(_ view: RideActionView) {
 
+        guard let pickupCoordinates = locationManager?.location?.coordinate else { return }
+        guard let destinationCoordinates = view.destination?.coordinate else { return }
+
+        Service.shared.uploadTrip(pickupCoordinates, destinationCoordinates) { (err, ref) in
+            if let error = err {
+                print("\(error)")
+                return
+            }
+
+            print("debug: did update trip")
+        }
+    }
+}
