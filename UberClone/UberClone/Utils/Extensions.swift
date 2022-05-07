@@ -12,7 +12,7 @@ extension UIColor {
     static func rgb(red: CGFloat, green: CGFloat, blue: CGFloat) -> UIColor {
         return UIColor.init(red: red/255, green: green/255, blue: blue/255, alpha: 1.0)
     }
-     
+
     static let backgroundColor = UIColor.rgb(red: 25, green: 25, blue: 25)
     static let mainBlueTint = UIColor.rgb(red: 17, green: 154, blue: 237)
     static let outlineStrokeColor = UIColor.rgb(red: 234, green: 46, blue: 111)
@@ -229,5 +229,51 @@ extension MKMapView {
 
         let insets = UIEdgeInsets(top: 100, left: 100, bottom: 250, right: 100)
         setVisibleMapRect(zoomRect, edgePadding: insets, animated: true)
+    }
+}
+
+extension UIViewController {
+    func shouldPresentLoadingView(_ present: Bool, message: String? = nil) {
+        if present {
+            let loadingView = UIView()
+            loadingView.frame = self.view.frame
+            loadingView.backgroundColor = .black
+            loadingView.alpha = 0
+            loadingView.tag = 1
+
+            let indicator = UIActivityIndicatorView()
+            indicator.style = .large
+            indicator.center = view.center
+
+            let label = UILabel()
+            label.text = message
+            label.font = UIFont.systemFont(ofSize: 24)
+            label.textColor = .white
+            label.textAlignment = .center
+            label.alpha = 0.87
+
+            self.view.addSubview(loadingView)
+            loadingView.addSubview(indicator)
+            loadingView.addSubview(label)
+
+            label.centerX(inView: view)
+            label.anchor(top: indicator.bottomAnchor, paddingTop: 32)
+
+            indicator.startAnimating()
+
+            UIView.animate(withDuration: 0.3) {
+                loadingView.alpha = 0.7
+            }
+        } else {
+            view.subviews.forEach { (subview) in
+                if subview.tag == 1 {
+                    UIView.animate(withDuration: 0.3, animations: {
+                        subview.alpha = 0
+                    }, completion: { _ in
+                        subview.removeFromSuperview()
+                    })
+                }
+            }
+        }
     }
 }
