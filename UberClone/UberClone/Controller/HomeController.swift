@@ -121,24 +121,15 @@ class HomeController: UIViewController {
     func observeCurrentTrip() {
         Service.shared.observeCurrentTrip { trip in
             self.trip = trip
-            guard let state = trip.state else { return }
 
-            switch state {
-            case .accepted:
-                print("debug: loading should be off")
-                    self.shouldPresentLoadingView(false)
-            case .requested:
-                break
-            case .denied:
-                break
-            case .driverArrived:
-                break
-            case .inProgress:
-                break
-            case .arrivedAtDestination:
-                break
-            case .completed:
-                break
+            if trip.state == .accepted {
+                self.shouldPresentLoadingView(false)
+                guard let driverUid = trip.driverUid else { return }
+
+                Service.shared.fetchUserData(uid: driverUid) { driver in
+                    self.animateRideActionView(shouldShow: true, config: .tripAccepted, user: driver)
+                }
+
             }
         }
     }
@@ -238,8 +229,8 @@ class HomeController: UIViewController {
         
         //         sign out
         view.addSubview(signOutButton)
-        signOutButton.centerX(inView: view)
-        signOutButton.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor)
+        signOutButton.centerY(inView: view)
+        signOutButton.anchor(left: view.leftAnchor, paddingLeft:  30)
         
         configureTableView()
     }
@@ -247,9 +238,9 @@ class HomeController: UIViewController {
     func configureLocationInputActivationView() {
         view.addSubview(locationInputActivationView)
         locationInputActivationView.centerX(inView: view)
-        locationInputActivationView.setDimensions(height: 50, width: view.frame.width - 35)
-        //        locationInputActivationView.anchor(bottom: view.bottomAnchor)
-        locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 80)
+        locationInputActivationView.setDimensions(height: 80, width: view.frame.width)
+                locationInputActivationView.anchor(bottom: view.bottomAnchor)
+//        locationInputActivationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 80)
         locationInputActivationView.delegate = self
         locationInputActivationView.alpha = 0
 
@@ -314,15 +305,24 @@ class HomeController: UIViewController {
         }, completion: completion)
     }
     
-    func animateRideActionView(shouldShow: Bool, destination: MKPlacemark? = nil) {
+    func animateRideActionView(shouldShow: Bool, destination: MKPlacemark? = nil, config: RideActionViewConfiguration? = nil, user: User? = nil) {
         let yOrigin = shouldShow ? self.view.frame.height - self.rideActionViewHeight : self.view.frame.height
-        
-        if shouldShow {
-            guard let destination = destination else { return }
-            self.rideActionView.destination = destination
-        }
+
         UIView.animate(withDuration: 0.3) {
             self.rideActionView.frame.origin.y = yOrigin
+        }
+
+        if shouldShow {
+            guard let config = config else { return }
+            rideActionView.configureUI(withConfig: config)
+
+            if let destination = destination {
+                self.rideActionView.destination = destination
+            }
+
+            if let user = user {
+                rideActionView.user = user
+            }
         }
     }
 }
@@ -507,7 +507,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
             //            self.mapView.showAnnotations(annotations, animated: true) is equal to func zoomToFit()
             self.mapView.zoomToFit(annotations: annotations)
             
-            self.animateRideActionView(shouldShow: true, destination: selectedPlacemark)
+            self.animateRideActionView(shouldShow: true, destination: selectedPlacemark, config: .requestRide)
             
         }
     }
@@ -540,8 +540,23 @@ extension HomeController: RideActionViewDelegate {
 
 extension HomeController: PickupControllerDelegate {
     func didAcceptTrip(_ trip: Trip) {
-        self.trip?.state = .accepted
-        self.dismiss(animated: true, completion: nil )
+
+        let anno = MKPointAnnotation()
+        anno.coordinate = trip.pickupCoordinates
+        mapView.addAnnotation(anno)
+        mapView.selectAnnotation(anno, animated: true)
+
+        let placemark = MKPlacemark(coordinate: trip.pickupCoordinates)
+        let mapItem = MKMapItem(placemark: placemark)
+        generatePolyline(toDestination: mapItem)
+
+        mapView.zoomToFit(annotations: mapView.annotations)
+
+        self.dismiss(animated: true) {
+            Service.shared.fetchUserData(uid: trip.passengerUid) { passenger in
+                self.animateRideActionView(shouldShow: true, config: .tripAccepted, user: passenger)
+            }
+        }
     }
 
 }
