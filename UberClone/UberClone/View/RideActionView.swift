@@ -10,6 +10,7 @@ import MapKit
 
 protocol RideActionViewDelegate: AnyObject {
     func uploadTrip(_ view: RideActionView)
+    func cancelTrip()
 }
 
 enum RideActionViewConfiguration {
@@ -161,7 +162,19 @@ class RideActionView: UIView {
     // MARK: - Selectors
     
     @objc func actionButtonPressed() {
-        delegate?.uploadTrip(self)
+        switch buttonAction {
+        case .requestRide:
+            delegate?.uploadTrip(self)
+        case .cancel:
+            delegate?.cancelTrip()
+        case .getDirections:
+            print("debug: getDirections")
+        case .pickup:
+            print("debug: pickup")
+        case .dropOff:
+            print("debug: dropOff")
+        }
+
     }
 
     // MARK: - Helper
@@ -174,7 +187,7 @@ class RideActionView: UIView {
         case .tripAccepted:
             guard let user = user else { return }
 
-            if user.accountType == .driver {
+            if user.accountType == .passenger {
                 titleLabel.text = "En Route To Passenger"
                 buttonAction = .getDirections
                 actionButton.setTitle(buttonAction.description, for: .normal)
@@ -183,12 +196,35 @@ class RideActionView: UIView {
                 actionButton.setTitle(buttonAction.description, for: .normal)
                 titleLabel.text = "Driver En Route "
             }
+
+            infoViewLabel.text = String(user.fullname.first ?? "X")
+            uberInfoLabel.text = user.fullname
+
         case .pickupPassenger:
-            break
+            titleLabel.text = "Arrived At Passenger Location"
+            buttonAction = .pickup
+            actionButton.setTitle(buttonAction.description, for: .normal)
         case .tripInProgress:
-            break
+            guard let user = user else { return }
+            if user.accountType == .driver {
+                actionButton.setTitle("TRIP IN PROGRESS", for: .normal)
+                actionButton.isEnabled = false
+            } else {
+                buttonAction = .getDirections
+                actionButton.setTitle(buttonAction.description, for: .normal)
+            }
+
+            titleLabel.text = "En Route Destination"
         case .endTrip:
-            break
+            guard let user = user else { return }
+
+            if user.accountType == .driver {
+                actionButton.setTitle("ARRIVED AT DESTINATION", for: .normal)
+                actionButton.isEnabled = false
+            } else {
+                buttonAction = .dropOff
+                actionButton.setTitle(buttonAction.description, for: .normal)
+            }
         }
     }
 }

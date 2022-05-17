@@ -29,7 +29,7 @@ class PickupController: UIViewController {
 
     private let pickupLabel: UILabel = {
         let label = UILabel()
-        label.text = "Would you like to pickup this passsenger?"
+        label.text = "Would you like to pickup this passenger?"
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .white
         return label

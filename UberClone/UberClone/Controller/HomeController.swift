@@ -93,7 +93,6 @@ class HomeController: UIViewController {
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        print("debug: state is 888")
         guard let trip = trip else { return }
         print("debug: state is \(trip.state.rawValue)")
     }
@@ -135,6 +134,7 @@ class HomeController: UIViewController {
     }
     
     func fetchUserData() {
+        print("debug: 33445566")
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         Service.shared.fetchUserData(uid: currentUid) { user in
             self.user = user
@@ -212,8 +212,8 @@ class HomeController: UIViewController {
     fileprivate func configureActionButton(config: ActionButtonConfiguration) {
         switch config {
         case .showMenu:
-            self.actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
-            self.actionButtonConfig = .showMenu
+            actionButton.setImage(UIImage(named: "baseline_menu_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
+            actionButtonConfig = .showMenu
         case .dismissActionView:
             actionButton.setImage(UIImage(named: "baseline_arrow_back_black_36dp")?.withRenderingMode(.alwaysOriginal), for: .normal)
             actionButtonConfig = .dismissActionView
@@ -314,7 +314,6 @@ class HomeController: UIViewController {
 
         if shouldShow {
             guard let config = config else { return }
-            rideActionView.configureUI(withConfig: config)
 
             if let destination = destination {
                 self.rideActionView.destination = destination
@@ -323,6 +322,8 @@ class HomeController: UIViewController {
             if let user = user {
                 rideActionView.user = user
             }
+
+            rideActionView.configureUI(withConfig: config)
         }
     }
 }
@@ -355,16 +356,13 @@ private extension HomeController {
         request.source = MKMapItem.forCurrentLocation()
         request.destination = destination
         request.transportType = .automobile
-        
-        print("debug: 4")
+
         let directionRequest = MKDirections(request: request)
         directionRequest.calculate { response, error  in
-            
-            print("debug: 5")
-            guard let response = response?.routes[0] else { return print("debug: 1")}
+
+            guard let response = response?.routes[0] else { return }
             self.route = response
-            guard let polyline = self.route?.polyline else { return print("debug: 2")}
-            print("debug: 6")
+            guard let polyline = self.route?.polyline else { return }
             self.mapView.addOverlay(polyline)
         }
     }
@@ -475,7 +473,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 3 : searchResults.count
+        return section == 0 ? 2 : searchResults.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -491,8 +489,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
         let selectedPlacemark = searchResults[indexPath.row]
         
         configureActionButton(config: .dismissActionView)
-        
-        print("debug: 3")
+
         let destination = MKMapItem(placemark: selectedPlacemark)
         generatePolyline(toDestination: destination)
         
@@ -516,6 +513,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
 // MARK: - RideActionViewDelegate
 
 extension HomeController: RideActionViewDelegate {
+
     func uploadTrip(_ view: RideActionView) {
 
         guard let pickupCoordinates = locationManager?.location?.coordinate else { return }
@@ -532,6 +530,16 @@ extension HomeController: RideActionViewDelegate {
             UIView.animate(withDuration: 0.3, animations: {
                 self.rideActionView.frame.origin.y = self.view.frame.height
             })
+        }
+    }
+
+    func cancelTrip() {
+        Service.shared.cancelTrip { (error, ref) in
+            if let error = error {
+                print("debug: Error deleting trip \(error.localizedDescription)")
+                return
+            }
+            self.animateRideActionView(shouldShow: false)
         }
     }
 }
