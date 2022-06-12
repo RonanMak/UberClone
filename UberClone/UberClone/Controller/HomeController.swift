@@ -118,8 +118,9 @@ class HomeController: UIViewController {
     // MARK: - API
 
     func observeCurrentTrip() {
-        Service.shared.observeCurrentTrip { trip in
-            self.trip = trip
+        Service.shared.observeCurrentTrip { [weak self] trip in
+            guard let StrongSelf = self else { return }
+            StrongSelf.trip = trip
 
             guard let state = trip.state else { return }
             guard let driverUid = trip.driverUid else { return }
@@ -129,13 +130,31 @@ class HomeController: UIViewController {
             case .denied:
                 break
             case .accepted:
-                self.shouldPresentLoadingView(false)
+                StrongSelf.shouldPresentLoadingView(false)
+                StrongSelf.removeAnnotaionAndOverlays()
+                var annotations = [MKAnnotation]()
 
-                Service.shared.fetchUserData(uid: driverUid) { driver in
-                    self.animateRideActionView(shouldShow: true, config: .tripAccepted, user: driver)
+                StrongSelf.mapView.annotations.forEach { annotation in
+
+                    if let anno = annotation as? DriverAnnotation {
+                        if anno.uid == trip.driverUid {
+                            annotations.append(anno)
+                        }
+                    }
+
+                    if let userAnno = annotation as? MKUserLocation {
+                        annotations.append(userAnno)
+                    }
+                }
+                print("debug: annotation array is \(annotations)")
+                StrongSelf.mapView.zoomToFit(annotations: annotations)
+
+                Service.shared.fetchUserData(uid: driverUid) { [weak self] driver in
+                    guard let StrongSelf = self else { return }
+                    StrongSelf.animateRideActionView(shouldShow: true, config: .tripAccepted, user: driver)
                 }
             case .driverArrived:
-                self.rideActionView.config = .driverArrived
+                StrongSelf.rideActionView.config = .driverArrived
                 
             case .inProgress:
                 break
