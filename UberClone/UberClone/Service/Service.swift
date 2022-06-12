@@ -101,4 +101,14 @@ struct Service {
 
         REF_TRIPS.child(uid).removeValue(completionBlock: completion)
     }
+
+    func updateDriverLocation(location: CLLocation) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let geofire = GeoFire(firebaseRef: REF_DRIVER_LOCATIONS)
+        geofire.setLocation(location, forKey: uid)
+    }
+
+    func updateTripState(trip: Trip, state: TripState) {
+        REF_TRIPS.child(trip.passengerUid).child("state").setValue(state.rawValue)
+    }
 }
