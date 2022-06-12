@@ -132,22 +132,8 @@ class HomeController: UIViewController {
             case .accepted:
                 StrongSelf.shouldPresentLoadingView(false)
                 StrongSelf.removeAnnotaionAndOverlays()
-                var annotations = [MKAnnotation]()
 
-                StrongSelf.mapView.annotations.forEach { annotation in
-
-                    if let anno = annotation as? DriverAnnotation {
-                        if anno.uid == trip.driverUid {
-                            annotations.append(anno)
-                        }
-                    }
-
-                    if let userAnno = annotation as? MKUserLocation {
-                        annotations.append(userAnno)
-                    }
-                }
-                print("debug: annotation array is \(annotations)")
-                StrongSelf.mapView.zoomToFit(annotations: annotations)
+                StrongSelf.zoomForActiveTrip(withdriverUid: driverUid)
 
                 Service.shared.fetchUserData(uid: driverUid) { [weak self] driver in
                     guard let StrongSelf = self else { return }
@@ -172,18 +158,34 @@ class HomeController: UIViewController {
             self.user = user
         }
     }
+
+    func startTrip() {
+        guard let trip = self.trip else { return }
+        Service.shared.updateTripState(trip: trip, state: .inProgress) { [weak self] (err, ref) in
+            guard let strongSelf = self else { return }
+            strongSelf.rideActionView.config = .tripInProgress
+            strongSelf.removeAnnotaionAndOverlays()
+            strongSelf.mapView.addAnnotationAndSelect(forCoordinate: trip.destinationCoordinates)
+
+            let placemark = MKPlacemark(coordinate: trip.destinationCoordinates)
+            let mapItem = MKMapItem(placemark: placemark)
+            strongSelf.generatePolyline(toDestination: mapItem)
+        }
+    }
     
     func fetchDriver() {
         guard let location = locationManager?.location else { return }
-        Service.shared.fetchDrivers(location: location) { driver in
+        Service.shared.fetchDrivers(location: location) { [weak self] driver in
+            guard let StrongSelf = self else { return }
             guard let coordinate = driver.location?.coordinate else { return }
             let annotation = DriverAnnotation(uid: driver.uid, coordinate: coordinate)
             
             var driverIsVisible: Bool {
-                return self.mapView.annotations.contains(where: { annotation -> Bool in
+                return StrongSelf.mapView.annotations.contains(where: { annotation -> Bool in
                     guard let driverAnno = annotation as? DriverAnnotation else { return false }
                     if driverAnno.uid == driver.uid {
                         driverAnno.updateAnnotationPosition(withCoordinate: coordinate)
+                        self?.zoomForActiveTrip(withdriverUid: driver.uid)
                         return true
                     }
                     return false
@@ -191,7 +193,7 @@ class HomeController: UIViewController {
             }
             
             if !driverIsVisible {
-                self.mapView.addAnnotation(annotation)
+                StrongSelf.mapView.addAnnotation(annotation)
             }
         }
     }
@@ -427,7 +429,24 @@ private extension HomeController {
         print("debug: did set region\(region)")
     }
 
+    func zoomForActiveTrip(withdriverUid uid: String) {
+        var annotations = [MKAnnotation]()
 
+        self.mapView.annotations.forEach { annotation in
+
+            if let anno = annotation as? DriverAnnotation {
+                if anno.uid == uid {
+                    annotations.append(anno)
+                }
+            }
+
+            if let userAnno = annotation as? MKUserLocation {
+                annotations.append(userAnno)
+            }
+        }
+        print("debug: annotation array is \(annotations)")
+        self.mapView.zoomToFit(annotations: annotations)
+    }
 }
 
 // MARK: - AuthenticationDelegate
@@ -451,7 +470,10 @@ extension HomeController: CLLocationManagerDelegate {
 
         self.rideActionView.config = .pickupPassenger
         guard let trip = self.trip else { return }
-        Service.shared.updateTripState(trip: trip, state: .driverArrived)
+        Service.shared.updateTripState(trip: trip, state: .driverArrived) { [weak self] (err, ref) in
+            guard let strongSelf = self else { return }
+            strongSelf.rideActionView.config = .pickupPassenger
+        }
     }
 
     func enableLocationService() {
@@ -567,10 +589,7 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource {
         generatePolyline(toDestination: destination)
         
         self.dismissLocationInputViewHandler { _ in
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = selectedPlacemark.coordinate
-            self.mapView.addAnnotation(annotation)
-            self.mapView.selectAnnotation(annotation, animated: true)
+            self.mapView.addAnnotationAndSelect(forCoordinate: selectedPlacemark.coordinate)
             
             let annotations = self.mapView.annotations.filter({ !$0.isKind(of: DriverAnnotation.self) })
             
@@ -622,6 +641,10 @@ extension HomeController: RideActionViewDelegate {
             self.locationInputActivationView.alpha = 1
         }
     }
+
+    func pickupPassenger() {
+        startTrip()
+    }
 }
 
 // MARK: - PickupControllerDelegate
@@ -630,10 +653,7 @@ extension HomeController: PickupControllerDelegate {
     func didAcceptTrip(_ trip: Trip) {
         self.trip = trip
 
-        let anno = MKPointAnnotation()
-        anno.coordinate = trip.pickupCoordinates
-        mapView.addAnnotation(anno)
-        mapView.selectAnnotation(anno, animated: true)
+        self.mapView.addAnnotationAndSelect(forCoordinate: trip.pickupCoordinates)
 
         setCustomRegion(withCoordinates: trip.pickupCoordinates)
 
